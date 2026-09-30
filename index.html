@@ -514,15 +514,30 @@ async function startApp(){
   document.getElementById("app")
     .style.display="block";
 
-  const { data } =
+  const { data, error } =
     await supabaseClient
       .from("profiles")
-      .select("name")
-      .single();
+      .select("name,birthday,gender,avatar_url")
+      .eq("id", (await supabaseClient.auth.getUser()).data.user.id)
+      .maybeSingle();
 
-  if(data && data.name){
-    document.getElementById("profileName")
-      .textContent = data.name;
+  if(data){
+    if(data.name){
+      document.getElementById("profileName")
+        .textContent = data.name;
+    }
+
+    if(data.birthday){
+      document.getElementById("birthdayInput").value = data.birthday;
+    }
+
+    if(data.gender){
+      document.getElementById("genderInput").value = data.gender;
+    }
+
+    if(data.avatar_url){
+      document.querySelector(".avatar").src = data.avatar_url;
+    }
   }
 
   loadMessages();
